@@ -40,3 +40,4 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/src/main/java/edu/miu/eems/eems_modular_starter_kit_uml_jdbc_streams.java
