@@ -4,7 +4,8 @@ import edu.miu.eems.db.DB;
 import edu.miu.eems.domain.Client;
 import edu.miu.eems.repo.ClientRepo;
 
-import java.sql.*; import java.util.*;
+import java.sql.*;
+import java.util.*;
 
 public class JdbcClientRepo implements ClientRepo {
     private Client map(ResultSet rs) throws SQLException {
