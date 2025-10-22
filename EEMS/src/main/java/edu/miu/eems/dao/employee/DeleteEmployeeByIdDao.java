@@ -1,19 +1,19 @@
-package edu.miu.eems.dao.department;
+package edu.miu.eems.dao.employee;
 
 import edu.miu.eems.dao.Dao;
 import java.sql.*;
 import java.util.*;
 
-public class DeleteDepartmentByIdDao implements Dao<Integer> {
+public class DeleteEmployeeByIdDao implements Dao<Integer> {
     private final int id;
 
-    public DeleteDepartmentByIdDao(int id){
+    public DeleteEmployeeByIdDao(int id){
         this.id=id;
     }
 
     @Override
     public String getSql(){
-        return "DELETE FROM department WHERE id=?";
+        return "DELETE FROM employee WHERE id=?";
     }
 
     @Override

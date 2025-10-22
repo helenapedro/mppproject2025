@@ -1,19 +1,19 @@
-package edu.miu.eems.dao.department;
+package edu.miu.eems.dao.project;
 
 import edu.miu.eems.dao.Dao;
 import java.sql.*;
 import java.util.*;
 
-public class DeleteDepartmentByIdDao implements Dao<Integer> {
+public class DeleteProjectByIdDao implements Dao<Integer> {
     private final int id;
 
-    public DeleteDepartmentByIdDao(int id){
-        this.id=id;
+    public DeleteProjectByIdDao(int id){
+        this.id = id;
     }
 
     @Override
     public String getSql(){
-        return "DELETE FROM department WHERE id=?";
+        return "DELETE FROM project WHERE id=?";
     }
 
     @Override
