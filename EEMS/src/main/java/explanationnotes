@@ -1,0 +1,23 @@
+──────────────────────────────────────────────────────────────────────────────
+VII. EXPLANATION NOTES
+──────────────────────────────────────────────────────────────────────────────
+- (i) Domains & associations: noun/verb analysis; association classes carry data (allocationPct). Multiplicities enforced by FKs + PKs.
+- (ii) Implementation: pure JDBC; repository interfaces; service encapsulates business rules; CLI drives demo.
+- (iii) Best practices: small classes, immutability (records), enum for status, transaction boundary in service, meaningful indexes.
+- (iv) Functional style: stream pipelines in services; `Optional` in repos; records are immutable → safer.
+- (v) Logic transparency: formulas commented; SQL constraints document invariants.
+- (vi) Queries professor will check (MySQL):
+   • HR cost → join employee_project + employee + project (implemented via repo calls + streams; can convert to a **VIEW** if desired).
+   • Dept projects → `SELECT * FROM project WHERE dept_id=? AND status='ACTIVE' ORDER BY ...`.
+   • Clients by upcoming deadlines → `SELECT DISTINCT c.* FROM client c JOIN client_project cp ON c.id=cp.client_id JOIN project p ON p.id=cp.project_id WHERE p.end_date <= DATE_ADD(CURDATE(), INTERVAL ? DAY)`.
+   • Transfer employee → single `UPDATE employee SET dept_id=? WHERE id=?` in a transaction.
+
+Optional VIEW for HR cost (MySQL)
+```
+CREATE OR REPLACE VIEW v_project_hr_cost AS
+SELECT p.id AS project_id,
+       SUM((e.salary/12.0) * TIMESTAMPDIFF(MONTH, p.start_date, COALESCE(p.end_date, CURDATE())) * (ep.allocation_pct/100.0)) AS hr_cost
+FROM project p
+JOIN employee_project ep ON ep.project_id = p.id
+JOIN employee e ON e.id = ep.employee_id
+GROUP BY p.id;
