@@ -32,14 +32,30 @@ public class App {
 
         // 3) Demo outputs
         System.out.println("=== EEMS Demo (MySQL) ===");
-        System.out.println("1) HR Cost for Project #10 = " + projectSvc.calculateProjectHRCost(10));
+        System.out.printf("1) HR Cost for Project #10 = %.2f%n",
+                projectSvc.calculateProjectHRCost(10)
+        );
+
         System.out.println("2) ACTIVE Projects for Department #1 sorted by budget:");
-        projectSvc.getProjectsByDepartment(1, "budget").forEach(p -> System.out.println("   - "+p.name()+" ($"+p.budget()+")"));
+
+        projectSvc
+                .getProjectsByDepartment(1, "budget")
+                .forEach(p -> System.out.printf("   - %s ($%.2f)\n",
+                        p.name(), p.budget())
+                );
+
         System.out.println("3) Clients with deadlines within 60 days:");
-        clientSvc.findClientsByUpcomingProjectDeadline(60).forEach(c -> System.out.println("   - "+c.name()));
+
+        clientSvc
+                .findClientsByUpcomingProjectDeadline(60)
+                .forEach(c -> System.out.println("   - " + c.name()));
+
         System.out.println("4) Transfer Employee #2 to Department #2");
+
         employeeSvc.transferEmployeeToDepartment(2,2);
-        System.out.println("   Employee #2 transferred. Verify in DB.");
+
+        System.out.println("Employee #2 transferred. Verify in DB.");
+
         System.out.println("Done.");
     }
 }
