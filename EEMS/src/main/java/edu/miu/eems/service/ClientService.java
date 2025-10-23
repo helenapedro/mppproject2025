@@ -5,7 +5,7 @@ import edu.miu.eems.repo.*;
 import edu.miu.eems.repo.jdbc.JdbcClientProjectRepo;
 import edu.miu.eems.repo.jdbc.JdbcClientRepo;
 import edu.miu.eems.repo.jdbc.JdbcProjectRepo;
-import edu.miu.eems.service.Interfases.IClientService;
+import edu.miu.eems.service.Interfaces.IClientService;
 
 import java.time.LocalDate;
 import java.util.*;

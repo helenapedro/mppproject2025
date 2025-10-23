@@ -5,7 +5,7 @@ import edu.miu.eems.repo.*;
 import edu.miu.eems.repo.jdbc.JdbcAllocationsRepo;
 import edu.miu.eems.repo.jdbc.JdbcEmployeeRepo;
 import edu.miu.eems.repo.jdbc.JdbcProjectRepo;
-import edu.miu.eems.service.Interfases.IProjectService;
+import edu.miu.eems.service.Interfaces.IProjectService;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

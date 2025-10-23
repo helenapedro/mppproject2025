@@ -4,7 +4,7 @@ import edu.miu.eems.db.DB;
 import edu.miu.eems.domain.Employee;
 import edu.miu.eems.repo.EmployeeRepo;
 import edu.miu.eems.repo.jdbc.JdbcEmployeeRepo;
-import edu.miu.eems.service.Interfases.IEmployeeService;
+import edu.miu.eems.service.Interfaces.IEmployeeService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

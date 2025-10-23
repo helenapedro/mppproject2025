@@ -1,9 +1,7 @@
-package edu.miu.eems.service.Interfases;
+package edu.miu.eems.service.Interfaces;
 
-import edu.miu.eems.domain.Client;
 import edu.miu.eems.domain.Employee;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface IEmployeeService {

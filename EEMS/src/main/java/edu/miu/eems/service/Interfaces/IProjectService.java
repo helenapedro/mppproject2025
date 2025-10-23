@@ -1,4 +1,4 @@
-package edu.miu.eems.service.Interfases;
+package edu.miu.eems.service.Interfaces;
 
 import edu.miu.eems.domain.Project;
 
