@@ -2,11 +2,12 @@ package edu.miu.eems.repo.jdbc;
 
 import edu.miu.eems.db.DB;
 import edu.miu.eems.domain.ClientProject;
-import edu.miu.eems.repo.ClientProjectRepo;
+import edu.miu.eems.repo.IClientProjectRepo;
+
 import java.sql.*;
 import java.util.*;
 
-public class JdbcClientProjectRepo implements ClientProjectRepo {
+public class JdbcClientProjectRepo implements IClientProjectRepo {
     private ClientProject map(ResultSet rs) throws SQLException {
         return new ClientProject(
                 rs.getInt("client_id"),
@@ -16,8 +17,8 @@ public class JdbcClientProjectRepo implements ClientProjectRepo {
 
     @Override
     public ClientProject add(ClientProject cp){
-        String sql = "INSERT INTO client_project(client_id,project_id) VALUES(?,?) " +
-                "ON DUPLICATE KEY UPDATE client_id=VALUES(client_id), project_id=VALUES(project_id)";
+        // FIX: Changed from "upsert" to a pure INSERT
+        String sql = "INSERT INTO client_project(client_id,project_id) VALUES(?,?)";
 
         try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
             ps.setInt(1,cp.clientId());

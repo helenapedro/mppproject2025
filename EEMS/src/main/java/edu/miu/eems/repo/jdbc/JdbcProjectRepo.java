@@ -2,14 +2,14 @@ package edu.miu.eems.repo.jdbc;
 
 import edu.miu.eems.db.DB;
 import edu.miu.eems.domain.*;
-import edu.miu.eems.repo.ProjectRepo;
+import edu.miu.eems.repo.IProjectRepo;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 import static edu.miu.eems.repo.jdbc.JdbcUtil.getLocalDate;
-import static java.sql.Types.DATE;
+import java.sql.Types; // Added missing import
 
-public class JdbcProjectRepo implements ProjectRepo {
+public class JdbcProjectRepo implements IProjectRepo {
     private Project map(ResultSet rs) throws SQLException {
         return new Project(
                 rs.getInt("id"),
@@ -24,8 +24,8 @@ public class JdbcProjectRepo implements ProjectRepo {
 
     @Override
     public Project add(Project p){
-        String sql = "INSERT INTO project(id,name,description,start_date,end_date,budget,status,dept_id) VALUES(?,?,?,?,?,?,?,?) " +
-                "ON DUPLICATE KEY UPDATE name=VALUES(name), description=VALUES(description), start_date=VALUES(start_date), end_date=VALUES(end_date), budget=VALUES(budget), status=VALUES(status), dept_id=VALUES(dept_id)";
+        // Changed to a pure INSERT
+        String sql = "INSERT INTO project(id,name,description,start_date,end_date,budget,status,dept_id) VALUES(?,?,?,?,?,?,?,?)";
 
         try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
             ps.setInt(1,p.id());
@@ -34,7 +34,7 @@ public class JdbcProjectRepo implements ProjectRepo {
             ps.setDate(4, java.sql.Date.valueOf(p.startDate()));
 
             if (p.endDate() == null)
-                ps.setNull(5, DATE);
+                ps.setNull(5, Types.DATE);
             else
                 ps.setDate(5, Date.valueOf(p.endDate()));
 
@@ -48,22 +48,17 @@ public class JdbcProjectRepo implements ProjectRepo {
         }
     }
     @Override
-    public void update(Project p) { // Renamed from 'add'
-
-        // Use a standard UPDATE query
+    public void update(Project p) {
         String sql = "UPDATE project SET name = ?, description = ?, start_date = ?, end_date = ?, " +
                 "budget = ?, status = ?, dept_id = ? " +
                 "WHERE id = ?";
 
         try (Connection c = DB.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-
-            // Set parameters for the SET clause
             ps.setString(1, p.name());
             ps.setString(2, p.description());
             ps.setDate(3, Date.valueOf(p.startDate()));
 
             if (p.endDate() == null) {
-                // Use java.sql.Types.DATE for the setNull method
                 ps.setNull(4, Types.DATE);
             } else {
                 ps.setDate(4, Date.valueOf(p.endDate()));
@@ -72,18 +67,17 @@ public class JdbcProjectRepo implements ProjectRepo {
             ps.setDouble(5, p.budget());
             ps.setString(6, p.status().name());
             ps.setInt(7, p.deptId());
-
-            // Set the id for the WHERE clause
             ps.setInt(8, p.id());
-
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
     @Override
     public Optional<Project> findById(Integer id){
-        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement("SELECT * FROM project WHERE id=?")){
+        String sql = "SELECT * FROM project WHERE id = ?";
+        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
             ps.setInt(1,id);
             try(ResultSet rs=ps.executeQuery()){
                 return rs.next() ? Optional.of(map(rs)) : Optional.empty();
@@ -94,10 +88,10 @@ public class JdbcProjectRepo implements ProjectRepo {
     }
 
     @Override public List<Project> findAll(){
-        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement("SELECT * FROM project ORDER BY id")){
+        String sql = "SELECT * FROM project ORDER BY id";
+        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
             try(ResultSet rs = ps.executeQuery()){
-                List<Project>
-                        list=new ArrayList<>();
+                List<Project> list=new ArrayList<>();
                 while(rs.next())
                     list.add(map(rs));
                 return list;
@@ -109,7 +103,8 @@ public class JdbcProjectRepo implements ProjectRepo {
 
     @Override
     public boolean deleteById(Integer id){
-        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement("DELETE FROM project WHERE id=?")){
+        String sql = "DELETE FROM project WHERE id = ?";
+        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
             ps.setInt(1,id);
             return ps.executeUpdate()>0;
         } catch(SQLException e){
@@ -117,9 +112,11 @@ public class JdbcProjectRepo implements ProjectRepo {
         }
     }
 
+
     @Override
     public List<Project> findByDepartment(int deptId){
-        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement("SELECT * FROM project WHERE dept_id=?")){
+        String sql = "SELECT * FROM project WHERE dept_id = ?";
+        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
             ps.setInt(1,deptId);
             try(ResultSet rs = ps.executeQuery()){
                 List<Project> list=new ArrayList<>();
@@ -134,7 +131,8 @@ public class JdbcProjectRepo implements ProjectRepo {
 
     @Override
     public List<Project> findActive(){
-        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement("SELECT * FROM project WHERE status='ACTIVE'")){
+        String sql = "SELECT * FROM project WHERE status = 'ACTIVE'";
+        try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
             try(ResultSet rs=ps.executeQuery()){
                 List<Project> list=new ArrayList<>();
                 while(rs.next())
@@ -142,6 +140,33 @@ public class JdbcProjectRepo implements ProjectRepo {
                 return list;
             }
         } catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public List<Project> findActiveByDepartmentSorted(int deptId, String sortBy) {
+        String sortColumn = switch (sortBy == null ? "" : sortBy.toLowerCase()) {
+            case "budget" -> "budget DESC";
+            case "enddate" -> "end_date";
+            default -> "name";
+        };
+
+        String sql = "SELECT * FROM project WHERE dept_id = ? AND status = 'ACTIVE' ORDER BY " + sortColumn;
+
+        List<Project> list = new ArrayList<>();
+        try (Connection c = DB.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setInt(1, deptId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next())
+                    list.add(map(rs));
+                return list;
+            }
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

@@ -9,9 +9,7 @@ public interface IProjectService {
     double calculateProjectHRCost(int projectId);
     List<Project> getProjectsByDepartment(int deptId, String sortBy);
     void add(Project project);
-    void update(Project ProjId);
-    void delete(int ProjId);
+    void update(Project project);
+    void delete(int projId); // Renamed from ProjId
     Optional<Project> findById(int pid);
-
-
 }
