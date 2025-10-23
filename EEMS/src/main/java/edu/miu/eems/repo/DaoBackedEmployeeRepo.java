@@ -1,5 +1,6 @@
 package edu.miu.eems.repo;
 
+import edu.miu.eems.dao.client.UpdateClientDao;
 import edu.miu.eems.domain.*;
 import edu.miu.eems.dao.*;
 import edu.miu.eems.dao.employee.*;
@@ -10,10 +11,20 @@ public class DaoBackedEmployeeRepo implements EmployeeRepo {
     private final DataAccess da = new DataAccessSystem();
 
     @Override
-    public Employee save(Employee e){
+    public Employee add(Employee e){
         try {
             da.write(new UpsertEmployeeDao(e));
             return e;
+        } catch(SQLException ex){
+            throw new RuntimeException(ex);
+        }
+    }
+    @Override
+    public void update(Employee e) { // Renamed from 'add'
+        try {
+            // You must use a DAO object that is built to *only*
+            // run an UPDATE statement, not an "upsert".
+            da.write(new UpdateEmployeeDao(e)); // Changed from UpsertEmployeeDao
         } catch(SQLException ex){
             throw new RuntimeException(ex);
         }

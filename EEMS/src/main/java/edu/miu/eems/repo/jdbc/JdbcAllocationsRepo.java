@@ -16,7 +16,7 @@ public class JdbcAllocationsRepo implements AllocationsRepo {
     }
 
     @Override
-    public EmployeeProject save(EmployeeProject ep){
+    public EmployeeProject add(EmployeeProject ep){
         String sql = "INSERT INTO employee_project(employee_id,project_id,allocation_pct) VALUES(?,?,?) " +
                 "ON DUPLICATE KEY UPDATE allocation_pct=VALUES(allocation_pct)";
 

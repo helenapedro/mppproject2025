@@ -22,7 +22,7 @@ public class JdbcEmployeeRepo implements EmployeeRepo {
     }
 
     @Override
-    public Employee save(Employee e){
+    public Employee add(Employee e){
         String sql = "INSERT INTO employee(id,name,title,hire_date,salary,dept_id) VALUES(?,?,?,?,?,?) " +
                 "ON DUPLICATE KEY UPDATE name=VALUES(name), title=VALUES(title), hire_date=VALUES(hire_date), salary=VALUES(salary), dept_id=VALUES(dept_id)";
 
@@ -87,6 +87,29 @@ public class JdbcEmployeeRepo implements EmployeeRepo {
             }
         } catch(SQLException e){
             throw new RuntimeException(e);
+        }
+    }
+    @Override
+    public void update(Employee e) { // Renamed from 'add'
+        // Use a standard UPDATE query
+        String sql = "UPDATE employee SET name = ?, title = ?, hire_date = ?, salary = ?, dept_id = ? " +
+                "WHERE id = ?";
+
+        try (Connection c = DB.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+
+            // Note the new parameter order to match the SQL query
+            ps.setString(1, e.name());
+            ps.setString(2, e.title());
+            ps.setDate(3, Date.valueOf(e.hireDate()));
+            ps.setDouble(4, e.salary());
+            ps.setInt(5, e.deptId());
+
+            // Set the id for the WHERE clause
+            ps.setInt(6, e.id());
+
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
     }
 }

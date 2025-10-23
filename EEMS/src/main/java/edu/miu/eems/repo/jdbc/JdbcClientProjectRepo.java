@@ -15,7 +15,7 @@ public class JdbcClientProjectRepo implements ClientProjectRepo {
     }
 
     @Override
-    public ClientProject save(ClientProject cp){
+    public ClientProject add(ClientProject cp){
         String sql = "INSERT INTO client_project(client_id,project_id) VALUES(?,?) " +
                 "ON DUPLICATE KEY UPDATE client_id=VALUES(client_id), project_id=VALUES(project_id)";
 

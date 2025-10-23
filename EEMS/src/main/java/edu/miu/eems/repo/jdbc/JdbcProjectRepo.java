@@ -23,7 +23,7 @@ public class JdbcProjectRepo implements ProjectRepo {
     }
 
     @Override
-    public Project save(Project p){
+    public Project add(Project p){
         String sql = "INSERT INTO project(id,name,description,start_date,end_date,budget,status,dept_id) VALUES(?,?,?,?,?,?,?,?) " +
                 "ON DUPLICATE KEY UPDATE name=VALUES(name), description=VALUES(description), start_date=VALUES(start_date), end_date=VALUES(end_date), budget=VALUES(budget), status=VALUES(status), dept_id=VALUES(dept_id)";
 
@@ -47,7 +47,40 @@ public class JdbcProjectRepo implements ProjectRepo {
             throw new RuntimeException(e);
         }
     }
+    @Override
+    public void update(Project p) { // Renamed from 'add'
 
+        // Use a standard UPDATE query
+        String sql = "UPDATE project SET name = ?, description = ?, start_date = ?, end_date = ?, " +
+                "budget = ?, status = ?, dept_id = ? " +
+                "WHERE id = ?";
+
+        try (Connection c = DB.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+
+            // Set parameters for the SET clause
+            ps.setString(1, p.name());
+            ps.setString(2, p.description());
+            ps.setDate(3, Date.valueOf(p.startDate()));
+
+            if (p.endDate() == null) {
+                // Use java.sql.Types.DATE for the setNull method
+                ps.setNull(4, Types.DATE);
+            } else {
+                ps.setDate(4, Date.valueOf(p.endDate()));
+            }
+
+            ps.setDouble(5, p.budget());
+            ps.setString(6, p.status().name());
+            ps.setInt(7, p.deptId());
+
+            // Set the id for the WHERE clause
+            ps.setInt(8, p.id());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     public Optional<Project> findById(Integer id){
         try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement("SELECT * FROM project WHERE id=?")){
