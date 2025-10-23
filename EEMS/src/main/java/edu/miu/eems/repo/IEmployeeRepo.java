@@ -4,6 +4,6 @@ import edu.miu.eems.domain.Employee;
 
 import java.util.List;
 
-public interface EmployeeRepo extends Crud<Employee,Integer> {
+public interface IEmployeeRepo extends ICrud<Employee,Integer> {
     List<Employee> findByDepartment(int deptId);
 }

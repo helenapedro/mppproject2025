@@ -2,60 +2,63 @@ package edu.miu.eems.service;
 
 import edu.miu.eems.domain.*;
 import edu.miu.eems.repo.*;
-import edu.miu.eems.repo.jdbc.JdbcClientProjectRepo;
-import edu.miu.eems.repo.jdbc.JdbcClientRepo;
-import edu.miu.eems.repo.jdbc.JdbcProjectRepo;
-import edu.miu.eems.service.Interfaces.IClientService;
+// REMOVE: All hard-coded jdbc imports
+// import edu.miu.eems.repo.jdbc.JdbcClientProjectRepo;
+// import edu.miu.eems.repo.jdbc.JdbcClientRepo;
+// import edu.miu.eems.repo.jdbc.JdbcProjectRepo;
+import edu.miu.eems.service.Interfases.IClientService;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientService implements IClientService {
-    private final ClientRepo clients;
-    private final ProjectRepo projects;
-    private final ClientProjectRepo clientProjects;
+    private final IClientRepo clients;
+    private final IProjectRepo projects;
+    private final IClientProjectRepo clientProjects;
 
-    public ClientService() {
-        this.clients = new JdbcClientRepo();
-        this.projects = new JdbcProjectRepo();
-        this.clientProjects = new JdbcClientProjectRepo();
+    // --- FIX 1: Use Constructor Injection ---
+    // Instead of newing up concrete classes, accept the interfaces.
+    public ClientService(IClientRepo clients, IProjectRepo projects, IClientProjectRepo clientProjects) {
+        this.clients = clients;
+        this.projects = projects;
+        this.clientProjects = clientProjects;
     }
 
-    // Task 3: clients with projects ending within N days
+    // --- FIX 2: Efficient Database-Driven Logic ---
     @Override
     public List<Client> findClientsByUpcomingProjectDeadline(int days) {
         LocalDate limit = LocalDate.now().plusDays(days);
 
-        Set<Integer> projectIds = projects.findAll().stream()
-                .filter(p -> p.endDate() != null && !p.endDate().isAfter(limit))
-                .map(Project::id)
-                .collect(Collectors.toSet());
-
-        if (projectIds.isEmpty()) return Collections.emptyList();
-
-        Set<Integer> clientIds = projectIds.stream()
-                .flatMap(pid -> clientProjects.findByProject(pid).stream())
-                .map(ClientProject::clientId)
-                .collect(Collectors.toSet());
-
-        return clients.findAll().stream()
-                .filter(c -> clientIds.contains(c.id()))
-                .collect(Collectors.toList());
+        // All the inefficient Java stream processing is replaced by
+        // a single call to a new, efficient repository method.
+        // All filtering and joining now happens in the database.
+        return clients.findClientsWithProjectsEndingBy(limit);
     }
 
     @Override
     public void addClient(Client c) {
+        // You could add business validation here, e.g.,
+        // if (clients.findById(c.id()).isPresent()) {
+        //     throw new IllegalArgumentException("Client ID already exists.");
+        // }
         clients.add(c);
     }
 
+    // --- FIX 3: Added Validation ---
     @Override
     public void deleteById(int cId) {
+        // Add validation to ensure the client exists before deleting
+        clients.findById(cId).orElseThrow(() ->
+                new IllegalArgumentException("Cannot delete: Client with ID " + cId + " not found."));
         clients.deleteById(cId);
     }
 
     @Override
     public void update(Client c) {
+        // Add validation to ensure the client exists before updating
+        clients.findById(c.id()).orElseThrow(() ->
+                new IllegalArgumentException("Cannot update: Client with ID " + c.id() + " not found."));
         clients.update(c);
     }
 

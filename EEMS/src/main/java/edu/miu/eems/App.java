@@ -9,10 +9,36 @@ import edu.miu.eems.service.Interfaces.IProjectService;
 import java.util.Scanner;
 
 public class App {
+
+
     private Scanner sc;
-    private final IClientService clientSvc = new ClientService();
-    private final IProjectService projectSvc = new ProjectService();
-    private final IEmployeeService employeeSvc = new EmployeeService();
+
+    private final IDepartmentRepo departmentRepo;
+    private final IEmployeeRepo employeeRepo;
+    private final IProjectRepo projectRepo;
+    private final IClientRepo clientRepo;
+    private final IAllocationsRepo allocationsRepo;
+    private final IClientProjectRepo clientProjectRepo;
+
+    private final IClientService clientSvc;
+    private final IProjectService projectSvc;
+    private final IEmployeeService employeeSvc;
+
+
+    public App() {
+        // Initialize Repositories first
+        this.departmentRepo = new JdbcDepartmentRepo();
+        this.employeeRepo = new JdbcIEmployeeRepo();
+        this.projectRepo = new JdbcProjectRepo();
+        this.clientRepo = new JdbcClientRepo();
+        this.allocationsRepo = new JdbcAllocationsRepo();
+        this.clientProjectRepo = new JdbcClientProjectRepo();
+
+        // Initialize Services by INJECTING the repositories
+        this.employeeSvc = new EmployeeService(employeeRepo, departmentRepo);
+        this.clientSvc = new ClientService(clientRepo, projectRepo, clientProjectRepo);
+        this.projectSvc = new ProjectService(projectRepo, allocationsRepo);
+    }
 
     public static void main(String[] args) {
         System.out.println("Starting...");
@@ -55,18 +81,28 @@ public class App {
         try {
             int choice = Integer.parseInt(input);
             switch (choice) {
-                case 1 -> calculateProjectHRCost();
-                case 2 -> getProjectsByDepartment();
-                case 3 -> findClientsByUpcomingProjectDeadline();
-                case 4 -> transferEmployeeToDepartment();
-                case 5 -> exit();
-                default -> System.out.println("Invalid choice. Please enter a number from the menu.");
+                case 1:
+                    calculateProjectHRCost();
+                    return handleSubMenu(); // Ask to continue
+                case 2:
+                    getProjectsByDepartment();
+                    return handleSubMenu(); // Ask to continue
+                case 3:
+                    findClientsByUpcomingProjectDeadline();
+                    return handleSubMenu(); // Ask to continue
+                case 4:
+                    transferEmployeeToDepartment();
+                    return handleSubMenu(); // Ask to continue
+                case 5:
+                    return false; // Signal the run() loop to stop
+                default:
+                    System.out.println("Invalid choice. Please enter a number from the menu.");
+                    return true; // Continue the run() loop
             }
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter a number.");
+            return true; // Continue the run() loop
         }
-
-        return handleSubMenu();
     }
 
     private boolean handleSubMenu() {
@@ -77,7 +113,7 @@ public class App {
 
         try {
             int choice = Integer.parseInt(input);
-            return choice == 1;
+            return choice == 1; // Returns true if 1, false if 2
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Returning to main menu.");
             return true;
@@ -89,26 +125,43 @@ public class App {
         if (sc != null) sc.close();
     }
 
+
     private void calculateProjectHRCost() {
-        System.out.printf("HR Cost for Project #10 = %.2f%n",
-                projectSvc.calculateProjectHRCost(10));
+        try {
+            System.out.printf("HR Cost for Project #10 = %.2f%n",
+                    projectSvc.calculateProjectHRCost(10));
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
     private void getProjectsByDepartment() {
-        System.out.println("ACTIVE Projects for Department #1 sorted by budget:");
-        projectSvc.getProjectsByDepartment(1, "budget")
-                .forEach(p -> System.out.printf("   - %s ($%.2f)%n", p.name(), p.budget()));
+        try {
+            System.out.println("ACTIVE Projects for Department #1 sorted by budget:");
+            projectSvc.getProjectsByDepartment(1, "budget")
+                    .forEach(p -> System.out.printf("   - %s ($%.2f)%n", p.name(), p.budget()));
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
     private void findClientsByUpcomingProjectDeadline() {
-        System.out.println("Clients with deadlines within 60 days:");
-        clientSvc.findClientsByUpcomingProjectDeadline(60)
-                .forEach(c -> System.out.println("   - " + c.name()));
+        try {
+            System.out.println("Clients with deadlines within 60 days:");
+            clientSvc.findClientsByUpcomingProjectDeadline(60)
+                    .forEach(c -> System.out.println("   - " + c.name()));
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
     private void transferEmployeeToDepartment() {
-        System.out.println("Transfer Employee #2 to Department #2");
-        employeeSvc.transferEmployeeToDepartment(2, 2);
-        System.out.println("Employee #2 transferred. Verify in DB.");
+        try {
+            System.out.println("Transfer Employee #2 to Department #2");
+            employeeSvc.transferEmployeeToDepartment(2, 2);
+            System.out.println("Employee #2 transferred. Verify in DB.");
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 }
