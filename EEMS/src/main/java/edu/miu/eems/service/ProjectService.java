@@ -12,12 +12,11 @@ import java.util.stream.Collectors;
 public class ProjectService implements IProjectService {
     private final IProjectRepo projects;
     private final IAllocationsRepo allocations;
-    //private final IEmployeeRepo employees;
 
     public ProjectService(IProjectRepo projects, IAllocationsRepo allocations) {
         this.projects = projects;
         this.allocations = allocations;
-        //this.employees = employees;
+
     }
 
     @Override
@@ -29,20 +28,15 @@ public class ProjectService implements IProjectService {
         LocalDate end = prj.endDate() != null ? prj.endDate() : LocalDate.now();
         if (start == null) throw new IllegalStateException("Project start date is missing");
 
-        // --- FIX IS HERE ---
-        // 1. Calculate the duration in months, rounded up.
+
         long calculatedMonths = (long) Math.ceil(ChronoUnit.DAYS.between(start, end) / 30.44);
 
-        // 2. Create a 'final' variable that ensures the value is at least 1.
-        //    This variable can now be used in the lambda.
         final long months = Math.max(1, calculatedMonths);
-        // --- END OF FIX ---
 
         return allocations.findEmployeeAllocationsByProject(projectId).stream()
                 .mapToDouble(empAlloc -> {
                     double monthlySalary = empAlloc.employeeSalary() / 12.0;
                     double allocationFraction = empAlloc.allocationPct() / 100.0;
-                    // This now correctly references the 'final' variable 'months'
                     return monthlySalary * months * allocationFraction;
                 })
                 .sum();

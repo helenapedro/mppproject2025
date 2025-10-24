@@ -1,7 +1,6 @@
 package edu.miu.eems.repo.jdbc;
 
 import edu.miu.eems.db.DB;
-// 1. Import the new DTO
 import edu.miu.eems.domain.EmployeeAllocation;
 import edu.miu.eems.domain.EmployeeProject;
 import edu.miu.eems.repo.IAllocationsRepo;
@@ -17,10 +16,6 @@ public class JdbcAllocationsRepo implements IAllocationsRepo {
         );
     }
 
-    // --- 2. ADD THIS NEW HELPER METHOD ---
-    /**
-     * Maps a joined result set to the EmployeeAllocation DTO.
-     */
     private EmployeeAllocation mapEmployeeAllocation(ResultSet rs) throws SQLException {
         return new EmployeeAllocation(
                 rs.getInt("employee_id"),
@@ -87,11 +82,8 @@ public class JdbcAllocationsRepo implements IAllocationsRepo {
         }
     }
 
-    // --- 3. ADD THE NEW METHOD IMPLEMENTATION ---
     @Override
     public List<EmployeeAllocation> findEmployeeAllocationsByProject(int projectId) {
-        // This single query JOINS the tables in the database,
-        // solving the N+1 query problem.
         String sql = "SELECT ep.*, e.salary " +
                 "FROM employee_project ep " +
                 "JOIN employee e ON ep.employee_id = e.id " +
@@ -104,7 +96,6 @@ public class JdbcAllocationsRepo implements IAllocationsRepo {
             ps.setInt(1, projectId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // Use the new helper method
                     list.add(mapEmployeeAllocation(rs));
                 }
             }

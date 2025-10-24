@@ -2,11 +2,11 @@ package edu.miu.eems.repo.jdbc;
 
 import edu.miu.eems.db.DB;
 import edu.miu.eems.domain.Client;
-import edu.miu.eems.repo.IClientRepo; // Make sure this matches your interface name
+import edu.miu.eems.repo.IClientRepo;
 
 import java.sql.*;
-import java.time.LocalDate; // <-- Add this import
-import java.util.ArrayList; // <-- Add this import
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.*;
 
 public class JdbcClientRepo implements IClientRepo {
@@ -94,7 +94,6 @@ public class JdbcClientRepo implements IClientRepo {
         }
     }
 
-    // --- ADD THIS ENTIRE METHOD ---
     @Override
     public List<Client> findClientsWithProjectsEndingBy(LocalDate endDate) {
         // This single query JOINS all 3 tables efficiently in the database

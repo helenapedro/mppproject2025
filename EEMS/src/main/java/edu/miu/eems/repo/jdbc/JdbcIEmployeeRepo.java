@@ -23,8 +23,6 @@ public class JdbcIEmployeeRepo implements IEmployeeRepo {
 
     @Override
     public Employee add(Employee e) {
-        // 1. Changed to a pure INSERT.
-        //    Removed "ON DUPLICATE KEY UPDATE..."
         String sql = "INSERT INTO employee(id,name,title,hire_date,salary,dept_id) VALUES(?,?,?,?,?,?)";
 
         try (Connection c = DB.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
@@ -58,8 +56,6 @@ public class JdbcIEmployeeRepo implements IEmployeeRepo {
             throw new RuntimeException(ex);
         }
     }
-
-    // --- 2. Reformatted for Readability ---
 
     @Override
     public Optional<Employee> findById(Integer id) {

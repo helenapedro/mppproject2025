@@ -42,7 +42,6 @@ public class JdbcDepartmentRepo implements IDepartmentRepo {
         }
     }
 
-    // FIX: Reformatted for readability
     @Override
     public Optional<Department> findById(Integer id){
         String sql = "SELECT * FROM department WHERE id=?";
@@ -58,7 +57,6 @@ public class JdbcDepartmentRepo implements IDepartmentRepo {
         }
     }
 
-    // FIX: Reformatted for readability
     @Override
     public List<Department> findAll(){
         String sql = "SELECT * FROM department ORDER BY id";
@@ -76,7 +74,6 @@ public class JdbcDepartmentRepo implements IDepartmentRepo {
         }
     }
 
-    // FIX: Reformatted for readability
     @Override
     public boolean deleteById(Integer id){
         String sql = "DELETE FROM department WHERE id=?";

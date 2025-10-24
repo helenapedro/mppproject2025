@@ -24,7 +24,6 @@ public class JdbcProjectRepo implements IProjectRepo {
 
     @Override
     public Project add(Project p){
-        // Changed to a pure INSERT
         String sql = "INSERT INTO project(id,name,description,start_date,end_date,budget,status,dept_id) VALUES(?,?,?,?,?,?,?,?)";
 
         try(Connection c=DB.getConnection(); PreparedStatement ps=c.prepareStatement(sql)){
