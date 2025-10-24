@@ -4,7 +4,7 @@ package edu.miu.eems.service;
 import edu.miu.eems.domain.Employee;
 import edu.miu.eems.repo.IDepartmentRepo; // 2. Import Department repo
 import edu.miu.eems.repo.IEmployeeRepo;
-import edu.miu.eems.service.Interfases.IEmployeeService;
+import edu.miu.eems.service.Interfaces.IEmployeeService;
 
 import java.util.Optional;
 

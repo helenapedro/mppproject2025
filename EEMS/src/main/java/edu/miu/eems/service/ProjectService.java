@@ -2,7 +2,7 @@ package edu.miu.eems.service;
 
 import edu.miu.eems.domain.*;
 import edu.miu.eems.repo.*;
-import edu.miu.eems.service.Interfases.IProjectService;
+import edu.miu.eems.service.Interfaces.IProjectService;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public class ProjectService implements IProjectService {
     private final IProjectRepo projects;
     private final IAllocationsRepo allocations;
+
 
     public ProjectService(IProjectRepo projects, IAllocationsRepo allocations) {
         this.projects = projects;
@@ -28,15 +29,16 @@ public class ProjectService implements IProjectService {
         LocalDate end = prj.endDate() != null ? prj.endDate() : LocalDate.now();
         if (start == null) throw new IllegalStateException("Project start date is missing");
 
-
         long calculatedMonths = (long) Math.ceil(ChronoUnit.DAYS.between(start, end) / 30.44);
 
         final long months = Math.max(1, calculatedMonths);
+
 
         return allocations.findEmployeeAllocationsByProject(projectId).stream()
                 .mapToDouble(empAlloc -> {
                     double monthlySalary = empAlloc.employeeSalary() / 12.0;
                     double allocationFraction = empAlloc.allocationPct() / 100.0;
+                    // This now correctly references the 'final' variable 'months'
                     return monthlySalary * months * allocationFraction;
                 })
                 .sum();
