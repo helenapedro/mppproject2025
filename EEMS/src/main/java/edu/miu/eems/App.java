@@ -26,7 +26,6 @@ public class App {
     private final IProjectService projectSvc;
     private final IEmployeeService employeeSvc;
 
-
     public App() {
         // Initialize Repositories first
         this.departmentRepo = new JdbcDepartmentRepo();
@@ -36,7 +35,6 @@ public class App {
         this.allocationsRepo = new JdbcAllocationsRepo();
         this.clientProjectRepo = new JdbcClientProjectRepo();
 
-        // Initialize Services by INJECTING the repositories
         this.employeeSvc = new EmployeeService(employeeRepo, departmentRepo);
         this.clientSvc = new ClientService(clientRepo, projectRepo, clientProjectRepo);
         this.projectSvc = new ProjectService(projectRepo, allocationsRepo);
@@ -49,7 +47,6 @@ public class App {
     }
 
     private void run() {
-        // Show DB connectivity
         try (var c = DB.getConnection()) {
             System.out.println("Connected to: " + c.getMetaData().getURL());
         } catch (Exception e) {
@@ -64,6 +61,7 @@ public class App {
             mainMenu();
             running = handleMainMenu();
         }
+
         exit();
     }
 
@@ -115,7 +113,7 @@ public class App {
 
         try {
             int choice = Integer.parseInt(input);
-            return choice == 1; // Returns true if 1, false if 2
+            return choice == 1;
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Returning to main menu.");
             return true;
@@ -126,7 +124,6 @@ public class App {
         System.out.println("Goodbye.");
         if (sc != null) sc.close();
     }
-
 
     private void calculateProjectHRCost() {
         try {
