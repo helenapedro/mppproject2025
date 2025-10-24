@@ -1,6 +1,6 @@
 # Employment & Engagement Management System (EEMS)
 
-A **fully modular Java 17 project** using **JDBC + DAO + Streams**, connected to **MySQL on Hostinger**.
+A **fully modular Java 17 project** using **JDBC + Streams**, connected to **MySQL on Hostinger**.
 ---
 
 ## 🧩 Overview
@@ -17,8 +17,7 @@ Each layer is isolated for modularity and testability.
 | Layer | Description |
 |--------|--------------|
 | **Domain** | Immutable records for `Department`, `Employee`, `Project`, `Client`, etc. |
-| **Repository** | CRUD interfaces and JDBC/DAO implementations for MySQL. |
-| **DAO Layer** | Small single-purpose DAO classes handling SQL & mapping. |
+| **Repository** | CRUD interfaces and JDBC implementations for MySQL. |
 | **Service Layer** | Functional operations using Java Streams. |
 | **CLI (App)** | Entry point to run and demonstrate all required tasks. |
 
@@ -52,12 +51,6 @@ src/edu/miu/eems/
 ├── domain/             # Domain entities (records)
 ├── repo/               # Repository interfaces
 │   └── jdbc/           # JDBC implementations
-├── dao/                # DAO interfaces and concrete classes
-│   ├── department/
-│   ├── employee/
-│   ├── project/
-│   ├── client/
-│   └── assoc/
 ├── service/            # Business logic (streams + transactions)
 └── App.java        # CLI entry point
 ```
@@ -82,7 +75,7 @@ private static final String DB_URL  = "jdbc:mysql://<HOST>:3306/<DBNAME>?useSSL=
 private static final String DB_USER = "<USERNAME>";
 private static final String DB_PASS = "<PASSWORD>";
 ```
-Alternatively, use environment variables:
+Alternatively, use config file (resources/config.properties):
 ```
 DB_URL=jdbc:mysql://<HOST>:3306/<DBNAME>?useSSL=false&serverTimezone=UTC
 DB_USER=<USERNAME>
